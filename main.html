@@ -8,7 +8,7 @@
         canvas {
             display: block;
             margin: 0 auto;
-            background: url('cena1.gif') repeat-x; /* Fundo se repetindo */
+            background: url('cena44.png') repeat-x; /* Fundo se repetindo */
             width: 100vw;  /* Largura 100% da tela */
             height: 100vh; /* Altura 100% da tela */
         }
@@ -16,13 +16,6 @@
             margin: 0;
             overflow: hidden;
         }
-        /* Ajustes para o smartphone */
-        @media (max-width: 768px) {
-    canvas {
-        background-size: 100% auto; /* Ajusta a largura para 100% e a altura será ajustada automaticamente */
-        background-position: center center; /* Centraliza o fundo para evitar distorções */
-    }
-}
     </style>
 </head>
 <body>
@@ -47,7 +40,7 @@ window.addEventListener('resize', () => {
         
     
         const bgImg = new Image();
-        bgImg.src = 'cena1.gif';
+        bgImg.src = 'cena44.png';
 
         const obstacleImages = [
             'estrela.png',
