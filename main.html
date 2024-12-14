@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo - Submarino</title>
+    <style>
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: url('cena1.gif') repeat-x; /* Fundo se repetindo */
+            width: 100vw;  /* Largura 100% da tela */
+            height: 100vh; /* Altura 100% da tela */
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        /* Ajustes para o smartphone */
+        @media (max-width: 768px) {
+    canvas {
+        background-size: 100% auto; /* Ajusta a largura para 100% e a altura será ajustada automaticamente */
+        background-position: center center; /* Centraliza o fundo para evitar distorções */
+    }
+}
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Definir a largura e altura do canvas para 100% da tela
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+    // Quando a janela for redimensionada, atualizar as dimensões do canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+        // Carregar imagens
+        const submarineImg = new Image();
+        submarineImg.src = 'submarine.png';
+        
+    
+        const bgImg = new Image();
+        bgImg.src = 'cena1.gif';
+
+        const obstacleImages = [
+            'estrela.png',
+            'baiacu.gif',
+            'peixeamarelo.png',
+            'concha.png',
+            'cavalomarinho.gif'
+        ]
+        .map(src => {
+            const img = new Image();
+            img.src = src;
+            return img;
+        });
+    
+        submarineImg.onload = () => {
+            gameLoop();
+        };
+    
+        const submarine = { /// tamanho do submarino
+            x: 150,
+            y: 300,
+            width: 90,
+            height: 90,
+            vy: 0,
+            gravity: 0.5, //aumenta a gravidade torna sub  ais rapido
+            jump: -10  // maior forca do pulo
+        };
+    
+        const obstacles = [];
+        let lives = 3;
+        let bgX = 0;
+    
+
+    
+        // Evento de controle (teclado e toque)
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') submarine.vy = submarine.jump; // Pulo
+            if (e.code === 'ArrowLeft') submarine.x -= 30; // Esquerda
+            if (e.code === 'ArrowRight') submarine.x += 30; // Direita
+        });
+
+        canvas.addEventListener('click', () => {
+            submarine.vy = submarine.jump; // Pulo no toque
+        });
+
+    ///obstaculos
+        function createObstacle() {
+            const img = obstacleImages[Math.floor(Math.random() * obstacleImages.length)];
+            const y = Math.random() * (canvas.height - 100);
+            const size = Math.random() * 40 + 50; // Tamanho entre 30 e 70
+obstacles.push({
+    x: canvas.width,
+    y: y,
+    width: size,
+    height: size,
+    img: img
+});
+}
+    ///vidas
+function drawLives() {
+            const img = new Image();
+            img.src = 'coracoes.png'; // Exibe os corações
+            for (let i = 0; i < lives; i++) {
+                ctx.drawImage(img, 10 + i * 40, 10, 30, 30); // Exibe corações na tela
+            }
+        }
+
+    
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+            // Fundo
+            bgX -= 2; // velocidade do fundo 
+            if (bgX <= -canvas.width) bgX = 0;
+            ctx.drawImage(bgImg, bgX, 0, canvas.width, canvas.height);
+            ctx.drawImage(bgImg, bgX + canvas.width, 0, canvas.width, canvas.height);
+    
+            // Submarino
+            submarine.vy += submarine.gravity;
+            submarine.y += submarine.vy;
+    
+            if (submarine.y + submarine.height > canvas.height) {
+                lives--;
+                submarine.y = canvas.height - submarine.height;
+                submarine.vy = 0;
+            }
+    
+            ctx.drawImage(submarineImg, submarine.x, submarine.y, submarine.width, submarine.height);
+    
+            // Obstáculos
+            obstacles.forEach((obs, index) => {
+                obs.x -= 5;
+                if (obs.x + obs.width < 0) obstacles.splice(index, 1);
+                ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
+    
+                if (
+                    submarine.x < obs.x + obs.width &&
+                    submarine.x + submarine.width > obs.x &&
+                    submarine.y < obs.y + obs.height &&
+                    submarine.y + submarine.height > obs.y
+                ) {
+                    lives--;
+                    obstacles.splice(index, 1);
+                }
+                 else {
+        ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
+    }
+});
+    
+            if (lives <= 0) {
+                window.location.href = 'gameover.html';
+            }
+    
+            if (Math.random() < 0.02) createObstacle();
+    
+            drawLives();
+            requestAnimationFrame(gameLoop);
+        }
+    
+        createObstacle();
+    </script>
+    
+</body>
+</html>
