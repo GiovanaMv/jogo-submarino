@@ -107,61 +107,61 @@ function drawLives() {
                 ctx.drawImage(img, 10 + i * 40, 10, 30, 30); // Exibe corações na tela
             }
         }
+        let isGameOver = false;
 
-    
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-            // Fundo
-            bgX -= 2; // velocidade do fundo 
-            if (bgX <= -canvas.width) bgX = 0;
-            ctx.drawImage(bgImg, bgX, 0, canvas.width, canvas.height);
-            ctx.drawImage(bgImg, bgX + canvas.width, 0, canvas.width, canvas.height);
-    
-            // Submarino
-            submarine.vy += submarine.gravity;
-            submarine.y += submarine.vy;
-    
-            if (submarine.y + submarine.height > canvas.height) {
-                lives--;
-                submarine.y = canvas.height - submarine.height;
-                submarine.vy = 0;
-            }
-    
-            ctx.drawImage(submarineImg, submarine.x, submarine.y, submarine.width, submarine.height);
-    
-            // Obstáculos
-            obstacles.forEach((obs, index) => {
-                obs.x -= 5;
-                if (obs.x + obs.width < 0) obstacles.splice(index, 1);
-                ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
-    
-                if (
-                    submarine.x < obs.x + obs.width &&
-                    submarine.x + submarine.width > obs.x &&
-                    submarine.y < obs.y + obs.height &&
-                    submarine.y + submarine.height > obs.y
-                ) {
-                    lives--;
-                    obstacles.splice(index, 1);
-                }
-                 else {
-        ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
+function gameLoop() {
+    if (isGameOver) return; // Interrompe o loop imediatamente ao detectar *game over*
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Fundo
+    bgX -= 2;
+    if (bgX <= -canvas.width) bgX = 0;
+    ctx.drawImage(bgImg, bgX, 0, canvas.width, canvas.height);
+    ctx.drawImage(bgImg, bgX + canvas.width, 0, canvas.width, canvas.height);
+
+    // Submarino
+    submarine.vy += submarine.gravity;
+    submarine.y += submarine.vy;
+
+    if (submarine.y + submarine.height > canvas.height) {
+        lives--; // Reduz vida se tocar no chão
+        submarine.y = canvas.height - submarine.height;
+        submarine.vy = 0;
     }
-});
-    
-            if (lives <= 0) {
-                window.location.href = 'gameover.html';
-            }
-    
-            if (Math.random() < 0.02) createObstacle();
-    
-            drawLives();
-            requestAnimationFrame(gameLoop);
+
+    ctx.drawImage(submarineImg, submarine.x, submarine.y, submarine.width, submarine.height);
+
+    // Obstáculos
+    obstacles.forEach((obs, index) => {
+        obs.x -= 5;
+        if (obs.x + obs.width < 0) obstacles.splice(index, 1);
+        ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
+
+        if (
+            submarine.x < obs.x + obs.width &&
+            submarine.x + submarine.width > obs.x &&
+            submarine.y < obs.y + obs.height &&
+            submarine.y + submarine.height > obs.y
+        ) {
+            lives--;
+            obstacles.splice(index, 1); // Remove o obstáculo ao colidir
         }
-    
-        createObstacle();
-    </script>
-    
-</body>
-</html>
+    });
+
+    // Verifica o *game over* imediatamente após decremento das vidas
+    if (lives <= 0) {
+        isGameOver = true; // Define o estado como *game over*
+        console.log("Game Over");
+        setTimeout(() => {
+            location.replace('gameover.html'); // Redireciona para a página de *game over*
+        }, 100); // Pequeno atraso para evitar problemas de redirecionamento
+        return;
+    }
+
+    // Cria novos obstáculos aleatoriamente
+    if (Math.random() < 0.02) createObstacle();
+
+    drawLives();
+    requestAnimationFrame(gameLoop);
+}
+</script></body></html>
